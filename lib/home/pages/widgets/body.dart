@@ -4,9 +4,14 @@ import 'package:copartner/common/extension.dart';
 import 'package:copartner/common/theme.dart';
 import 'package:flutter/material.dart';
 
-class BodyWidget extends StatelessWidget {
+class BodyWidget extends StatefulWidget {
   const BodyWidget({super.key});
 
+  @override
+  State<BodyWidget> createState() => _BodyWidgetState();
+}
+
+class _BodyWidgetState extends State<BodyWidget> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -19,55 +24,98 @@ class BodyWidget extends StatelessWidget {
             style:
                 context.theme.bodyLarge?.copyWith(fontWeight: FontWeight.w400),
           ),
-          carousalWidget(context),
-          carousalWidget(context),
-          carousalWidget(context),
+          carousalWidget(context, itemcount: 5),
+          carousalWidget(context, itemcount: 6),
+          carousalWidget(context, itemcount: 7),
         ],
       ),
     );
   }
 
-  Container carousalWidget(BuildContext context) {
-    final ValueNotifier<int> value = ValueNotifier<int>(0);
+  Container carousalWidget(BuildContext context, {required int itemcount}) {
+    final ValueNotifier<int> vIndex = ValueNotifier<int>(0);
     return Container(
-      height: 211,
+      // height: 211,
       margin: const EdgeInsets.only(top: 5, bottom: defaultPadding),
       width: MediaQuery.sizeOf(context).width,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(radius),
-          color: const Color(0xff1D242D).withOpacity(.29)
-          // gradient: LinearGradient(colors: [
-          //   const Color(0xff1D242D).withOpacity(.29),
-          //   const Color(0xff1D242D).withOpacity(.29)
-          // ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-          ),
+          color: const Color(0xff1D242D).withOpacity(.5),
+          border: Border.all(color: AppColors.white.withOpacity(.1))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const ListTile(),
-          Container(
-            height: 115,
-            margin: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                color: const Color(0xff1D242D).withOpacity(.31),
-                borderRadius: BorderRadius.circular(radius),
-                border: Border.all(color: Colors.white.withOpacity(.10))),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+            leading: const CircleAvatar(
+              radius: 20,
+              child: Icon(Icons.person),
+            ),
+            title: Text(
+              "Channel Name",
+              style: context.theme.bodySmall
+                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              "Expert Name",
+              style: context.theme.bodySmall
+                  ?.copyWith(color: AppColors.white.withOpacity(.5)),
+            ),
+            trailing: Column(
+              children: [
+                5.h,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.verified_rounded,
+                      color: AppColors.blue,
+                    ),
+                    Text(
+                      "SEBI Reg.",
+                      style: context.theme.bodySmall,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 125,
+            child: PageView.builder(
+              controller: PageController(viewportFraction: .9),
+              onPageChanged: (value) => vIndex.value = value,
+              itemCount: itemcount,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) => Container(
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xff1D242D).withOpacity(.31),
+                  borderRadius: BorderRadius.circular(radius),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(.10),
+                  ),
+                ),
+              ),
+            ),
           ),
           SizedBox(
             height: 5,
             child: ListView.separated(
-              itemCount: 5,
+              itemCount: itemcount,
               shrinkWrap: true,
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) => ValueListenableBuilder(
-                  valueListenable: value,
+                  valueListenable: vIndex,
                   builder: (context, val, _) {
                     return AnimatedContainer(
-                      duration: Durations.extralong1,
+                      duration: Durations.long2,
                       height: 5,
                       width: val == index ? 30 : 10,
                       decoration: BoxDecoration(
-                        color: AppColors.white,
+                        color: val == index
+                            ? AppColors.white
+                            : AppColors.white.withOpacity(.5),
                         borderRadius: BorderRadius.circular(20),
                       ),
                     );
@@ -75,6 +123,7 @@ class BodyWidget extends StatelessWidget {
               separatorBuilder: (context, index) => 10.w,
             ),
           ),
+          10.h,
         ],
       ),
     );
