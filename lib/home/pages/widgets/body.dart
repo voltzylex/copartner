@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:copartner/common/appcolors.dart';
 import 'package:copartner/common/constants.dart';
 import 'package:copartner/common/extension.dart';
 import 'package:copartner/common/theme.dart';
+import 'package:copartner/core/api.dart';
 import 'package:flutter/material.dart';
 
 class BodyWidget extends StatefulWidget {
@@ -24,9 +27,25 @@ class _BodyWidgetState extends State<BodyWidget> {
             style:
                 context.theme.bodyLarge?.copyWith(fontWeight: FontWeight.w400),
           ),
-          carousalWidget(context, itemcount: 5),
-          carousalWidget(context, itemcount: 6),
-          carousalWidget(context, itemcount: 7),
+          FutureBuilder(
+              future: Api.to.fetchStockData(),
+              builder: (context, snap) {
+                log("Snapdata is ${snap.hasData} and state is ${snap.connectionState} and data is ${snap.data?.isSuccess}");
+                if (snap.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snap.data != null) {
+                  return Column(
+                    children: snap.data!.data!
+                        .map((item) => carousalWidget(context, itemcount: 5))
+                        .toList(),
+                  );
+                }
+
+                return Text("Some Error Occured");
+              }),
         ],
       ),
     );
