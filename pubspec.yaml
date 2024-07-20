@@ -1,24 +1,28 @@
-name: copartner
-description: "A new Flutter project."
-publish_to: 'none'
-version: 0.1.0
+name: copartner  # Project name
+
+description: "A new Flutter project."  # Project description
+
+publish_to: 'none'  # Publishing destination (e.g., 'none', 'server', 'filesystem')
+
+version: 0.1.0  # Project version number
 
 environment:
-  sdk: '>=3.4.3 <4.0.0'
+  sdk: '>=3.4.3 <4.0.0'  # Minimum required Dart SDK version
 
 dependencies:
-  dio: ^5.5.0+1
-  flutter:
+  flutter:  # Flutter SDK dependency
     sdk: flutter
-  flutter_svg: ^2.0.10+1
-  intl: ^0.19.0
+
+  flutter_svg: ^2.0.10+1  # Flutter SVG package dependency, version 2.0.10 or higher
+  intl: ^0.19.0  # Intl package dependency, version 0.19.0 or higher
+  dio: ^5.5.0+1  # Dio HTTP client package dependency, version 5.5.0+1 or higher
 
 dev_dependencies:
-  flutter_test:
+  flutter_test:  # Flutter testing dependency for development
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^3.0.0  # Flutter lints package for linting and code analysis
 
 flutter:
-  uses-material-design: true
+  uses-material-design: true  # Enable Material Design support for Flutter
   assets:
-    - assets/
+    - assets/  # Specify asset directories to include in the project

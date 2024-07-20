@@ -1,14 +1,15 @@
-import 'dart:developer';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:copartner/common/appcolors.dart';
 import 'package:copartner/common/constants.dart';
 import 'package:copartner/common/extension.dart';
 import 'package:copartner/common/theme.dart';
 import 'package:copartner/core/api.dart';
+import 'package:copartner/home/controllers/home_controller.dart';
 import 'package:copartner/home/models/home_model.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+/// BodyWidget represents the main body content of the home page.
 class BodyWidget extends StatefulWidget {
   const BodyWidget({super.key});
 
@@ -19,45 +20,69 @@ class BodyWidget extends StatefulWidget {
 class _BodyWidgetState extends State<BodyWidget> {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(defaultPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Subscription",
-            style:
-                context.theme.bodyLarge?.copyWith(fontWeight: FontWeight.w400),
-          ),
-          FutureBuilder(
-              future: Api.to.fetchStockData(),
-              builder: (context, snap) {
-                log("Snapdata is ${snap.hasData} and state is ${snap.connectionState} and data is ${snap.data?.isSuccess}");
-                // if (snap.connectionState == ConnectionState.waiting) {
-                //   return const Center(
-                //     child: CircularProgressIndicator(),
-                //   );
-                // }
-                if (snap.data != null) {
-                  return Column(
-                    children: snap.data!.data!
-                        .map(
-                          (item) => item.serviceType == "1"
-                              ? carousalWidget(context,
-                                  itemcount: 5, data: item)
-                              : SizedBox(),
-                        )
-                        .toList(),
-                  );
-                }
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(defaultPadding),
+        child: FutureBuilder(
+          future: Api.to.fetchStockData(),
+          builder: (context, snap) {
+            if (snap.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snap.hasData) {
+              final home = HomeController();
 
-                return const Text("Some Error Occured");
-              }),
-        ],
+              return ValueListenableBuilder(
+                valueListenable: home.selectedType,
+                builder: (context, v, _) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Subscription",
+                        style: context.theme.bodyLarge
+                            ?.copyWith(fontWeight: FontWeight.w400),
+                      ),
+                      // Display carousel widgets based on fetched data
+                      ...snap.data!.data!.map(
+                        (item) => item.serviceType == home.serviceChanger(v)
+                            ? carousalWidget(context, itemcount: 5, data: item)
+                            : const SizedBox(),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+
+            // Show error message and refresh button on error
+            return InkWell(
+              onTap: () {
+                setState(() {});
+              },
+              child: Column(
+                children: [
+                  const Text(
+                    "Some Error Occurred \n Please Try Again",
+                    textAlign: TextAlign.center,
+                  ),
+                  10.h,
+                  const Icon(
+                    Icons.refresh_sharp,
+                    color: AppColors.white,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
+  /// Generates a carousel widget to display subscription details.
   Container carousalWidget(BuildContext context,
       {required int itemcount, required Datum data}) {
     final ValueNotifier<int> vIndex = ValueNotifier<int>(0);
@@ -69,27 +94,28 @@ class _BodyWidgetState extends State<BodyWidget> {
     final expertName = data.experts!.name!;
     final planType = data.planType!;
     final time = DateFormat('h:mm a').format(data.updatedOn!);
-
     final amount = data.amount!;
     final duration = data.durationMonth;
     final discount = data.discountPercentage;
 
     return Container(
-      // height: 211,
       margin: const EdgeInsets.only(top: 5, bottom: defaultPadding),
-      width: MediaQuery.sizeOf(context).width,
+      width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(radius),
-          color: const Color(0xff1D242D).withOpacity(.5),
-          border: Border.all(color: AppColors.white.withOpacity(.1))),
+        borderRadius: BorderRadius.circular(radius),
+        color: const Color(0xff1D242D).withOpacity(.5),
+        border: Border.all(color: AppColors.white.withOpacity(.1)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Expert details ListTile
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 10),
             leading: CircleAvatar(
+              backgroundColor: const Color(0xffE9E9E9),
               radius: 20,
-              child: Center(
+              child: ClipOval(
                 child: Image.network(
                   image,
                   fit: BoxFit.contain,
@@ -109,22 +135,24 @@ class _BodyWidgetState extends State<BodyWidget> {
             trailing: Column(
               children: [
                 5.h,
-                Row(
+                const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.verified_rounded,
                       color: AppColors.blue,
                     ),
                     Text(
                       "SEBI Reg.",
-                      style: context.theme.bodySmall,
+                      style: TextStyle(color: AppColors.blue),
                     ),
                   ],
                 ),
               ],
             ),
           ),
+
+          // Carousel for subscription details
           SizedBox(
             height: 125,
             child: PageView.builder(
@@ -195,6 +223,8 @@ class _BodyWidgetState extends State<BodyWidget> {
               ),
             ),
           ),
+
+          // Indicator dots for the carousel
           SizedBox(
             height: 5,
             child: ListView.separated(
@@ -202,20 +232,21 @@ class _BodyWidgetState extends State<BodyWidget> {
               shrinkWrap: true,
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) => ValueListenableBuilder(
-                  valueListenable: vIndex,
-                  builder: (context, val, _) {
-                    return AnimatedContainer(
-                      duration: Durations.long2,
-                      height: 5,
-                      width: val == index ? 30 : 10,
-                      decoration: BoxDecoration(
-                        color: val == index
-                            ? AppColors.white
-                            : AppColors.white.withOpacity(.5),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    );
-                  }),
+                valueListenable: vIndex,
+                builder: (context, val, _) {
+                  return AnimatedContainer(
+                    duration: Durations.long2,
+                    height: 5,
+                    width: val == index ? 30 : 10,
+                    decoration: BoxDecoration(
+                      color: val == index
+                          ? AppColors.white
+                          : AppColors.white.withOpacity(.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  );
+                },
+              ),
               separatorBuilder: (context, index) => 10.w,
             ),
           ),
