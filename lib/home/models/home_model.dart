@@ -13,7 +13,7 @@ class HomeModel {
     List<Datum>? data;
     String? displayMessage;
     dynamic errorMessages;
-    int? responseStatusCode;
+    num? responseStatusCode;
 
     HomeModel({
         this.isSuccess,
@@ -48,11 +48,11 @@ class Datum {
     String? serviceType;
     String? planType;
     String? chatId;
-    int? durationMonth;
-    int? amount;
+    num? durationMonth;
+    num? amount;
     String? premiumTelegramLink;
     String? description;
-    int? discountedAmount;
+    num? discountedAmount;
     dynamic discountPercentage;
     dynamic discountValidFrom;
     dynamic discountValidTo;
@@ -152,11 +152,11 @@ class Experts {
     String? name;
     String? legalName;
     String? expertImagePath;
-    int? expertTypeId;
+    num? expertTypeId;
     String? sebiRegNo;
     String? email;
-    int? experience;
-    int? rating;
+    num? experience;
+    num? rating;
     String? mobileNumber;
     String? channelName;
     String? chatId1;
@@ -171,9 +171,9 @@ class Experts {
     String? premiumTelegramChannel1;
     String? premiumTelegramChannel2;
     String? premiumTelegramChannel3;
-    int? telegramFollower;
+    num? telegramFollower;
     bool? isCoPartner;
-    int? fixCommission;
+    num? fixCommission;
     String? sebiRegCertificatePath;
     dynamic relationshipManagerId;
     bool? isActive;

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:copartner/common/appcolors.dart';
 import 'package:copartner/common/assets.dart';
 import 'package:copartner/common/constants.dart';
@@ -71,14 +73,18 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               itemBuilder: (context, index) => ValueListenableBuilder(
                   valueListenable: controller.selectedType,
                   builder: (context, val, child) {
+                    final service = controller.serviceType[index];
                     return CupertinoButton(
-                      onPressed: () => controller.selectedType.value = index,
+                      onPressed: () {
+                        controller.selectedType.value = service;
+                        log("Service type is ${controller.serviceType[index]}");
+                      },
                       padding: EdgeInsets.zero,
                       child: Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(color: AppColors.border),
-                            color: val == index
+                            color: val == service
                                 ? AppColors.blue
                                 : Colors.transparent),
                         // alignment: Alignment.center,

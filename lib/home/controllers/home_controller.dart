@@ -9,6 +9,8 @@ class HomeController {
     return _instance;
   }
 
-   List<String> serviceType = ["Equity", "Commodity", "Options"];
-  final ValueNotifier<int> selectedType = ValueNotifier(0);
+  List<String> serviceType = ["Equity", "Commodity", "Options"];
+  final ValueNotifier<String> selectedType = ValueNotifier("Options");
 }
+
+enum ServiceType { equity, commodity, options }

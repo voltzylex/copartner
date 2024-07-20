@@ -5,7 +5,9 @@ import 'package:copartner/common/constants.dart';
 import 'package:copartner/common/extension.dart';
 import 'package:copartner/common/theme.dart';
 import 'package:copartner/core/api.dart';
+import 'package:copartner/home/models/home_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BodyWidget extends StatefulWidget {
   const BodyWidget({super.key});
@@ -31,28 +33,47 @@ class _BodyWidgetState extends State<BodyWidget> {
               future: Api.to.fetchStockData(),
               builder: (context, snap) {
                 log("Snapdata is ${snap.hasData} and state is ${snap.connectionState} and data is ${snap.data?.isSuccess}");
-                if (snap.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+                // if (snap.connectionState == ConnectionState.waiting) {
+                //   return const Center(
+                //     child: CircularProgressIndicator(),
+                //   );
+                // }
                 if (snap.data != null) {
                   return Column(
                     children: snap.data!.data!
-                        .map((item) => carousalWidget(context, itemcount: 5))
+                        .map(
+                          (item) => item.serviceType == "1"
+                              ? carousalWidget(context,
+                                  itemcount: 5, data: item)
+                              : SizedBox(),
+                        )
                         .toList(),
                   );
                 }
 
-                return Text("Some Error Occured");
+                return const Text("Some Error Occured");
               }),
         ],
       ),
     );
   }
 
-  Container carousalWidget(BuildContext context, {required int itemcount}) {
+  Container carousalWidget(BuildContext context,
+      {required int itemcount, required Datum data}) {
     final ValueNotifier<int> vIndex = ValueNotifier<int>(0);
+    final subtitleTheme = context.theme.bodySmall
+        ?.copyWith(fontSize: 10, color: AppColors.white.withOpacity(.5));
+    final titleTheme = context.theme.bodyLarge?.copyWith(fontSize: 14);
+    final image = data.experts!.expertImagePath!;
+    final channelName = data.experts!.channelName!;
+    final expertName = data.experts!.name!;
+    final planType = data.planType!;
+    final time = DateFormat('h:mm a').format(data.updatedOn!);
+
+    final amount = data.amount!;
+    final duration = data.durationMonth;
+    final discount = data.discountPercentage;
+
     return Container(
       // height: 211,
       margin: const EdgeInsets.only(top: 5, bottom: defaultPadding),
@@ -66,17 +87,22 @@ class _BodyWidgetState extends State<BodyWidget> {
         children: [
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-            leading: const CircleAvatar(
+            leading: CircleAvatar(
               radius: 20,
-              child: Icon(Icons.person),
+              child: Center(
+                child: Image.network(
+                  image,
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
             title: Text(
-              "Channel Name",
+              channelName,
               style: context.theme.bodySmall
                   ?.copyWith(fontSize: 14, fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
-              "Expert Name",
+              expertName,
               style: context.theme.bodySmall
                   ?.copyWith(color: AppColors.white.withOpacity(.5)),
             ),
@@ -108,12 +134,63 @@ class _BodyWidgetState extends State<BodyWidget> {
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) => Container(
                 margin: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: const Color(0xff1D242D).withOpacity(.31),
                   borderRadius: BorderRadius.circular(radius),
                   border: Border.all(
                     color: Colors.white.withOpacity(.10),
                   ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          planType,
+                          style: titleTheme,
+                        ),
+                        Container(
+                          transform: Matrix4.translationValues(-10, -5, 0),
+                          child: Text(
+                            time.toString(),
+                            style: subtitleTheme,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text("Amount :", style: subtitleTheme),
+                        5.w,
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: AppColors.white.withOpacity(.1),
+                            borderRadius: BorderRadius.circular(radius + 10),
+                          ),
+                          child: Text(
+                            amount.toInt().toString(),
+                            style: titleTheme?.copyWith(fontSize: 12),
+                          ).padding(const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 2)),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text("Duration :", style: subtitleTheme),
+                        5.w,
+                        Text("${duration!.toInt()}Month", style: titleTheme),
+                        defaultPadding.w,
+                        Text("Discount :", style: subtitleTheme),
+                        5.w,
+                        Text("${discount ?? 30}%", style: titleTheme),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -32,10 +32,10 @@ class Api {
   Future<HomeModel?> fetchStockData() async {
     try {
       final res = await dio.get(stockUrl);
-      log("Api data 1 is ${res.data}");
-      final home = homeModelFromJson(jsonEncode(res.data));
-      log("Api data is ${home.isSuccess}");
-      return home;
+  
+      return HomeModel.fromJson(res.data);
+ 
+   
     } on DioException catch (e) {
       log(e.toString(), name: "Dio Error");
       return null;
