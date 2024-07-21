@@ -1,6 +1,3 @@
-Creating a basic README for the given repository involves summarizing the project, its purpose, dependencies used, and providing instructions on how to run it. Here’s a template you can use:
-
----
 
 # Copartner Interview Task
 
